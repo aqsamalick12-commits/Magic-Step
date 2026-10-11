@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Magic Steps</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--ink:#070820;--gold:#f6c96b;--gold2:#ffe7a6;--vio:#8b5cf6;--cy:#4fd1ff;--ro:#ff6fae;--glass:rgba(255,255,255,.06);--line:rgba(255,255,255,.14);--tx:#f4f3ff;--mut:#aeadd3;
+--serif:"Fraunces",Georgia,"Times New Roman",serif;--sans:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px);touch-action:manipulation}
+html,body{margin:0;min-height:100%;overflow-x:hidden}
+body{font-family:var(--sans);color:var(--tx);background:var(--ink);font-size:16px}
+[hidden]{display:none!important}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(60vmax 45vmax at 10% -8%,rgba(139,92,246,.45),transparent 60%),radial-gradient(55vmax 40vmax at 100% 8%,rgba(79,209,255,.2),transparent 60%),radial-gradient(60vmax 50vmax at 70% 110%,rgba(255,111,174,.24),transparent 60%);animation:aur 20s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.45;background-image:radial-gradient(1px 1px at 20px 30px,#fff,transparent),radial-gradient(1px 1px at 90px 120px,#fffa,transparent),radial-gradient(1.5px 1.5px at 160px 60px,#fffc,transparent);background-size:200px 200px}
+@keyframes aur{to{transform:scale(1.15) translate(2%,3%);filter:hue-rotate(25deg)}}
+#float{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#float span{position:absolute;bottom:-60px;font-family:var(--serif);font-weight:600;opacity:.09;animation:rise2 linear infinite}
+@keyframes rise2{to{transform:translateY(-120vh) rotate(360deg)}}
+.screen{display:none;position:relative;z-index:1;min-height:100vh;padding:22px 18px 44px;max-width:1040px;margin:0 auto}
+.screen.on{display:block;animation:fadein .4s}
+@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+:is(.grid,.chars)>:nth-child(1){--h:38}:is(.grid,.chars)>:nth-child(2){--h:165}:is(.grid,.chars)>:nth-child(3){--h:200}:is(.grid,.chars)>:nth-child(4){--h:262}:is(.grid,.chars)>:nth-child(5){--h:318}:is(.grid,.chars)>:nth-child(6){--h:350}:is(.grid,.chars)>:nth-child(7){--h:50}
+.stg>:nth-child(1){--h:150}.stg>:nth-child(2){--h:32}.stg>:nth-child(3){--h:345}
+
+/* home */
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:5vh}
+h1.logo{font:800 clamp(54px,14vw,120px)/.95 var(--serif);letter-spacing:-.025em;margin:0 0 14px;background:linear-gradient(100deg,#fff4cf,#f6c96b 30%,#ff9ec9 58%,#9bdcff 82%,#fff4cf);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 8s linear infinite;filter:drop-shadow(0 10px 36px rgba(246,201,107,.28))}
+@keyframes shine{to{background-position:250% 0}}
+.tagline{margin:0;max-width:30ch;font-size:clamp(17px,4vw,22px);line-height:1.45;color:#e4e3fb}
+.chars{display:flex;align-items:flex-end;justify-content:center;gap:6px;width:100%;max-width:640px;margin:38px 0 0;border-bottom:1px solid var(--line)}
+.chars div{--k:1;flex:1;max-width:86px;display:flex;flex-direction:column;align-items:center;font-size:clamp(26px,7vw,40px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4));animation:rise 1s cubic-bezier(.2,.9,.3,1.15) both}
+.chars div::after{content:"";width:100%;height:calc(var(--k)*18px);margin-top:10px;border-radius:10px 10px 0 0;background:linear-gradient(180deg,hsla(var(--h),95%,75%,.55),hsla(var(--h),80%,60%,.06));border:1px solid hsla(var(--h),95%,82%,.5);border-bottom:0;box-shadow:0 -6px 26px hsla(var(--h),95%,65%,.35)}
+@keyframes rise{from{opacity:0;transform:translateY(46px) scaleY(.5);transform-origin:bottom}}
+.center{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:30px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.book{margin:26px 0 0;max-width:42ch;font-size:13.5px;line-height:1.5;color:var(--mut)}
+.hint{margin:8px 0 0;font-size:13px;color:var(--mut);opacity:.8}
+
+/* buttons */
+.btn{border:1px solid var(--line);cursor:pointer;font:600 16px var(--sans);color:var(--tx);padding:13px 26px;border-radius:999px;background:var(--glass);backdrop-filter:blur(10px);transition:transform .15s,box-shadow .2s,background .2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.13)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn:focus-visible,.opt:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.btn.gold{color:#2a1a00;border:0;font-weight:700;background:linear-gradient(135deg,#ffe7a6,#f6c96b 55%,#e8a93a);box-shadow:0 8px 28px rgba(246,201,107,.35),inset 0 1px 0 rgba(255,255,255,.65)}
+.btn.gold:hover{background:linear-gradient(135deg,#fff0c4,#f6c96b 55%,#e8a93a);box-shadow:0 12px 38px rgba(246,201,107,.55),inset 0 1px 0 #fff}
+.btn.alt{border:0;background:linear-gradient(135deg,#7c5cf6,#4fb4ff);box-shadow:0 8px 26px rgba(124,92,246,.4)}
+.btn.small{padding:9px 16px;font-size:14px}
+.cta{font-size:21px;padding:18px 58px;animation:glowp 2.8s ease-in-out infinite}
+@keyframes glowp{50%{box-shadow:0 8px 54px rgba(246,201,107,.7),inset 0 1px 0 rgba(255,255,255,.65)}}
+
+/* headers + cards */
+.top{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap}
+.top h2{margin:0;flex:1;text-align:center;font:700 clamp(20px,5vw,30px) var(--serif)}
+.sub{text-align:center;color:var(--mut);font-size:clamp(14px,3.5vw,18px);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.lcard{--h:262;position:relative;overflow:hidden;cursor:pointer;text-align:center;padding:30px 16px 18px;border-radius:26px;background:linear-gradient(160deg,hsla(var(--h),90%,70%,.17),rgba(255,255,255,.04) 55%);border:1px solid hsla(var(--h),90%,75%,.3);backdrop-filter:blur(14px);transition:transform .25s,box-shadow .25s,border-color .25s}
+.lcard::before{content:"";position:absolute;top:-25%;right:-15%;width:65%;aspect-ratio:1;border-radius:50%;background:hsla(var(--h),95%,65%,.4);filter:blur(40px);opacity:.45;transition:opacity .3s}
+.lcard>*{position:relative}
+.lcard:hover{transform:translateY(-6px);box-shadow:0 18px 50px hsla(var(--h),90%,55%,.35);border-color:hsla(var(--h),95%,80%,.65)}
+.lcard:hover::before{opacity:.85}
+.lcard .num{position:absolute;top:12px;left:16px;font:600 13px var(--sans);color:var(--gold2)}
+.lcard .em{width:84px;height:84px;margin:0 auto 12px;display:grid;place-items:center;font-size:44px;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.3),rgba(255,255,255,.04) 65%);border:1px solid var(--line);animation:bob 3.4s ease-in-out infinite}
+.lcard h3{margin:4px 0 2px;font:700 21px/1.2 var(--serif)}
+.lcard small{display:block;margin-top:6px;color:var(--mut);font-size:13px}
+.lcard.lock{filter:grayscale(1) brightness(.7);opacity:.55;cursor:not-allowed}
+.lcard.lock:hover{transform:none;box-shadow:none}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.stars{font-size:19px;letter-spacing:3px;color:var(--gold);margin-top:12px;text-shadow:0 0 14px rgba(246,201,107,.5)}
+.stg{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:24px}
+.stg .lcard{width:230px}
+.big{width:112px;height:112px;margin:8px auto;display:grid;place-items:center;font-size:56px;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.3),rgba(255,255,255,.04) 65%);border:1px solid var(--line);box-shadow:0 0 70px rgba(246,201,107,.28);animation:bob 3s ease-in-out infinite}
+#result{padding-top:8vh}
+.sc{font:800 clamp(30px,8vw,52px) var(--serif);text-align:center;margin:16px 0 4px}
+.stars.sc{font-family:var(--sans);font-size:clamp(30px,8vw,46px)}
+
+/* rules */
+.rules{padding:18px 22px;border-radius:26px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px);line-height:1.6;color:#e5e4fa}
+.rules ol{list-style:none;counter-reset:r;margin:0;padding:0}
+.rules li{counter-increment:r;position:relative;padding:12px 0 12px 48px;border-bottom:1px solid rgba(255,255,255,.07)}
+.rules li:last-child{border:0}
+.rules li::before{content:counter(r);position:absolute;left:0;top:12px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 14px var(--serif);color:#2a1a00;background:linear-gradient(135deg,#ffe7a6,#f6c96b)}
+.rules b{color:var(--gold2)}
+
+/* game */
+.hud{display:flex;gap:10px;justify-content:center;margin:4px 0 10px}
+.pill{padding:7px 16px;border-radius:999px;background:rgba(0,0,0,.35);border:1px solid var(--line);font-weight:600;font-size:14px}
+#hScore{color:var(--gold2)}
+.prog{height:6px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;margin:0 auto 16px;max-width:520px}
+.prog i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--cy),var(--vio),var(--ro));box-shadow:0 0 14px var(--vio);transition:width .6s}
+.play{display:grid;grid-template-columns:1fr 1.1fr;gap:16px;align-items:start}
+.stairs{position:relative;height:300px;border-radius:26px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(80% 60% at 70% 0,rgba(139,92,246,.35),transparent 70%),linear-gradient(180deg,rgba(10,12,40,.7),rgba(6,7,26,.92))}
+.stairs::after{content:"";position:absolute;left:0;right:0;bottom:0;height:30%;background:linear-gradient(0deg,rgba(79,209,255,.16),transparent);pointer-events:none}
+.step{position:absolute;bottom:0;width:15%;display:flex;justify-content:center;padding-top:6px;font:700 15px var(--serif);color:rgba(255,255,255,.55);border-radius:10px 10px 0 0;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.22);border-bottom:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:.5s}
+.step.done{color:#2a1a00;background:linear-gradient(180deg,#ffe7a6,#f6c96b 60%,#c9892a);border-color:#ffe7a6;box-shadow:0 0 28px rgba(246,201,107,.6),inset 0 1px 0 #fff}
+.player{position:absolute;width:15%;text-align:center;font-size:40px;line-height:1;z-index:3;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5)) drop-shadow(0 0 14px rgba(79,209,255,.6));transition:left .7s cubic-bezier(.3,1.6,.5,1),bottom .7s cubic-bezier(.3,1.6,.5,1)}
+.player span{display:inline-block}
+.player.jump span{animation:jump .7s}.player.slip span{animation:slip .8s}
+@keyframes jump{40%{transform:translateY(-60px) rotate(360deg)}}
+@keyframes slip{30%{transform:rotate(-70deg) translateX(-10px)}60%{transform:rotate(60deg) translateY(8px)}}
+.trophy{position:absolute;font-size:42px;animation:bob 2s infinite;filter:drop-shadow(0 0 18px rgba(246,201,107,.9))}
+.host{position:absolute;left:10px;top:10px;z-index:2;max-width:54%;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.bubble{background:rgba(255,255,255,.96);color:#1d1650;border-radius:16px 16px 16px 4px;padding:8px 12px;font-size:12.5px;font-weight:600;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.hc{width:56px;height:56px;display:grid;place-items:center;font-size:32px;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.35),rgba(255,255,255,.06) 65%);border:1px solid var(--line);animation:bob 2.4s ease-in-out infinite}
+.qcard{padding:18px;border-radius:26px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.q{cursor:pointer;min-height:100px;padding:16px;border-radius:18px;display:flex;align-items:center;justify-content:center;text-align:center;font:600 clamp(18px,4.3vw,25px)/1.4 var(--serif);background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.08);transition:border-color .2s}
+.q:hover{border-color:rgba(246,201,107,.5)}
+.q small{display:block;margin-top:8px;font:500 12px var(--sans);color:var(--mut)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.opt{font:600 clamp(15px,3.6vw,19px) var(--sans);color:var(--tx);padding:15px 10px;border-radius:16px;cursor:pointer;background:rgba(255,255,255,.07);border:1px solid var(--line);transition:.18s}
+.opt:hover:not(:disabled){transform:translateY(-3px);background:rgba(139,92,246,.3);border-color:rgba(167,139,250,.85);box-shadow:0 10px 26px rgba(139,92,246,.35)}
+.opt:disabled{cursor:default}
+.opt.ok{color:#04261a;background:linear-gradient(135deg,#6ee7b7,#34d399);border-color:#a7f3d0;box-shadow:0 0 30px rgba(52,211,153,.55);animation:okp .5s}
+.opt.no{color:#fff;background:linear-gradient(135deg,#fb7185,#e11d48);border-color:#fda4af;box-shadow:0 0 28px rgba(251,91,125,.5);animation:shake .5s}
+.opt.hide{visibility:hidden}
+@keyframes okp{50%{transform:scale(1.1)}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.life{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+#pop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:50;pointer-events:none}
+#pop.on{display:flex}
+#pop .in{font:800 clamp(34px,9vw,68px) var(--serif);padding:22px 44px;border-radius:36px;text-align:center;color:#2a1a00;background:linear-gradient(135deg,#fff0c4,#f6c96b 55%,#ff9ec9);box-shadow:0 0 80px rgba(246,201,107,.6),0 30px 80px rgba(0,0,0,.5);animation:popin .6s cubic-bezier(.2,1.8,.4,1)}
+@keyframes popin{from{transform:scale(0) rotate(-14deg)}}
+.conf{position:fixed;top:50%;left:50%;font-size:24px;z-index:51;pointer-events:none;animation:burst 1.2s ease-out forwards}
+@keyframes burst{to{transform:translate(var(--x),var(--y)) rotate(720deg);opacity:0}}
+#ask{position:fixed;inset:0;z-index:80;background:rgba(4,5,20,.78);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px}
+#ask .box{background:linear-gradient(160deg,#1a1650,#0e0e30);border:1px solid var(--line);border-radius:26px;padding:26px;max-width:360px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+#ask .row{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+@media(max-width:760px){.play{grid-template-columns:1fr}}
+@media(max-width:420px){.opts{grid-template-columns:1fr}.stairs{height:290px}.stg .lcard{width:100%}.chars{gap:3px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style></head><body>
+<div id="float"></div>
+
+<section class="screen on" id="home">
+  <div class="hero">
+    <h1 class="logo">Magic Steps</h1>
+    <p class="tagline">Climb seven levels of number theory, one right answer at a time.</p>
+    <div class="chars" id="homechars"></div>
+    <div class="center">
+      <button class="btn gold cta" onclick="go('levels')">Start climbing</button>
+      <div class="row2">
+        <button class="btn alt" onclick="go('rules')">📜 Rules</button>
+        <button class="btn small" id="musicBtn1" onclick="toggleMusic()">🎵 Music: ON</button>
+      </div>
+    </div>
+    <p class="book">📖 Based on <i>Elementary Number Theory</i> by David M. Burton, Units 1, 2 and 3</p>
+    <p class="hint">🔊 Sound ke liye screen par ek baar tap karein</p>
+  </div>
+</section>
+
+<section class="screen" id="rules">
+  <div class="top"><button class="btn small" onclick="go('home')">⬅ Back</button><h2>📜 Game Rules</h2><span style="width:80px"></span></div>
+<div class="rules">
+    <ol>
+      <li><b>7 Levels</b> hain, har level ke <b>3 stages</b>: 🌱 Easy, 🔥 Medium, 💀 Hard.</li>
+      <li>Har stage me <b>5 steps</b> (questions) hain. Sahi jawab par aap ek step upar charhte hain, galat par phisal jate hain.</li>
+      <li>Har question ke <b>4 options</b> hain. Ek option par tap karein.</li>
+      <li>Jawab <b>sahi</b> ho to "Good Job!" pop-up aata hai aur game <b>khud agle question</b> par chali jati hai. <b>Galat</b> ho to sahi jawab dikha kar khud next question aa jata hai. Next button dabane ki zarurat nahi.</li>
+      <li><b>Question par tap/click</b> karein to game question aur options <b>parh kar sunati</b> hai 🔊.</li>
+      <li>Har stage me <b>2 lifelines (50:50)</b> hain. Ye do galat options hata deti hai, yani sahi jawab ka chance 50%.</li>
+      <li>Stage pass karne ke liye kam az kam <b>3 sahi jawab</b> chahiye. Pass karne par agla stage/level khulta hai.</li>
+      <li>Score: 5 sahi = ⭐⭐⭐, 4 = ⭐⭐, 3 = ⭐, us se kam = dobara try karein.</li>
+      <li>Kisi bhi waqt <b>Back</b> button se pichli screen par ja sakte hain. Music aur awaz ON/OFF kar sakte hain.</li>
+      <li>Har stage me kuch questions <b>📖 Theory</b> ke hain jo seedha Burton ki book ke theorems aur definitions se liye gaye hain, baqi questions calculation ke hain.</li>
+      <li>Topics: Induction, Binomial Theorem (Unit 1), Division Algorithm, GCD, LCM, Diophantine (Unit 2), Primes, Sieve, Fundamental Theorem of Arithmetic, Goldbach (Unit 3).</li>
+    </ol>
+  </div>
+</section>
+
+<section class="screen" id="levels">
+  <div class="top"><button class="btn small" onclick="go('home')">⬅ Back</button><h2>🗺 Choose Your Level</h2><button class="btn small" onclick="unlockAll()">🔓 Unlock all</button></div>
+  <div class="grid" id="lgrid"></div>
+</section>
+
+<section class="screen" id="stages">
+  <div class="top"><button class="btn small" onclick="go('levels')">⬅ Back</button><h2 id="stTitle"></h2><span style="width:80px"></span></div>
+  <div class="big" id="stEmoji"></div>
+  <div class="stg" id="stgrid"></div>
+</section>
+
+<section class="screen" id="game">
+  <div class="top">
+    <button class="btn small" onclick="backFromGame()">⬅ Back</button>
+    <h2 id="gTitle"></h2>
+    <button class="btn small" id="musicBtn2" onclick="toggleMusic()">🎵</button>
+  </div>
+  <div class="hud"><span class="pill" id="hStep"></span><span class="pill" id="hScore"></span></div>
+  <div class="prog"><i id="progI"></i></div>
+  <div class="play">
+    <div class="stairs" id="stairs">
+      <div class="host"><div class="bubble" id="bubble">Hello!</div><div class="hc" id="hostEm"></div></div>
+    </div>
+    <div class="qcard">
+      <div class="q" id="qtxt" onclick="readQ()"></div>
+      <div class="opts" id="opts"></div>
+      <div class="life"><button class="btn small gold" id="lifeBtn" onclick="fifty()">✂ 50:50 (2)</button><button class="btn small alt" onclick="readQ()">🔊 Read</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="result">
+  <div class="big" id="rEmoji"></div>
+  <div class="sc" id="rTitle"></div>
+  <div class="stars sc" id="rStars"></div>
+  <div class="sub" id="rMsg"></div>
+  <div class="center">
+    <button class="btn gold" id="rNext" onclick="nextStage()">Next ➡</button>
+    <button class="btn" onclick="startStage(cur.lv,cur.st)">🔁 Try Again</button>
+    <button class="btn alt" onclick="go('levels')">🗺 Levels</button>
+  </div>
+</section>
+
+<div id="ask" hidden><div class="box"><div style="font-size:42px">🪜</div><p><b>Wapas jana hai?</b><br>Is stage ka progress ruk jayega.</p><div class="row"><button class="btn small alt" onclick="askNo()">Nahi, khelo</button><button class="btn small gold" onclick="askYes()">Haan, wapas</button></div></div></div>
+<div id="pop"><div class="in" id="popin">Good Job! 🎉</div></div>
+
+<script>
+/* ---------- helpers ---------- */
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const gcd=(a,b)=>b?gcd(b,a%b):a;
+const lcm=(a,b)=>a/gcd(a,b)*b;
+const C=(n,k)=>{let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return Math.round(r)};
+const isP=n=>{if(n<2)return false;for(let i=2;i*i<=n;i++)if(n%i==0)return false;return true};
+const mod=(a,m)=>((a%m)+m)%m;
+const powmod=(a,k,m)=>{let r=1;for(let i=0;i<k;i++)r=r*a%m;return r};
+const ext=(a,b)=>{if(!b)return[a,1,0];const[g,x,y]=ext(b,a%b);return[g,y,x-Math.floor(a/b)*y]};
+const sup=e=>String(e).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
+const fact=n=>{const f={};for(let p=2;p*p<=n;p++)while(n%p==0){f[p]=(f[p]||0)+1;n/=p}if(n>1)f[n]=(f[n]||0)+1;return f};
+const tau=n=>Object.values(fact(n)).reduce((a,e)=>a*(e+1),1);
+const sigma=n=>{let s=0;for(let d=1;d<=n;d++)if(n%d==0)s+=d;return s};
+const fstr=n=>Object.entries(fact(n)).map(([p,e])=>e>1?p+sup(e):p).join(' × ');
+const primesBetween=(a,b)=>{let c=0;for(let i=a;i<=b;i++)if(isP(i))c++;return c};
+const coprimePair=(lo,hi)=>{let x,y;do{x=R(lo,hi);y=R(lo,hi)}while(x==y||gcd(x,y)!=1);return[x,y]};
+
+function mk(q,ans,wr=[]){
+  ans=String(ans);const set=[];
+  wr.map(String).forEach(w=>{if(w!==ans&&!set.includes(w))set.push(w)});
+  const n=Number(ans);
+  if(ans.trim()!==''&&!isNaN(n)){
+    let k=1,guard=0;
+    while(set.length<3&&guard++<80){
+      for(const v of [n+k,n-k]){
+        const s=String(v);
+        if(set.length<3&&s!==ans&&!set.includes(s)&&(v>=0||n<0))set.push(s);
+      }
+      k+=R(1,3);
+    }
+  }
+  return{q,a:ans,o:shuf([ans,...set.slice(0,3)])};
+}
+
+/* ---------- question banks: [easy],[medium],[hard] per level ---------- */
+const LV=[
+{t:'Induction & Sums',u:'Unit 1',e:'🐵',n:'Bandar Bhai',g:[
+ [()=>{const n=R(5,15);return mk(`Find 1 + 2 + 3 + … + ${n}`,n*(n+1)/2,[n*(n+1)/2+n,n*n,n*(n-1)/2])},
+  ()=>{const n=R(4,12);return mk(`Sum of the first ${n} odd numbers (1 + 3 + 5 + …)?`,n*n,[n*(n+1),n*n-1,2*n])},
+  ()=>{const n=R(4,10);return mk(`2 + 4 + 6 + … + ${2*n} = ?`,n*(n+1),[n*n,n*(n+1)/2,n*(n+2)])}],
+ [()=>{const n=R(3,9);return mk(`Find 1² + 2² + 3² + … + ${n}²`,n*(n+1)*(2*n+1)/6,[(n*(n+1)/2)**2,n*(n+1)*(2*n+1)/3,n*n*n])},
+  ()=>{const n=R(3,7);return mk(`Find 1³ + 2³ + 3³ + … + ${n}³`,(n*(n+1)/2)**2,[n*(n+1)*(2*n+1)/6,n*(n+1)/2,(n*(n+1))**2])},
+  ()=>{const n=R(4,9);return mk(`1 + 2 + 4 + 8 + … (${n} terms, last term is 2${sup(n-1)})`,2**n-1,[2**n,2**n+1,2**(n-1)-1])}],
+ [()=>{const n=R(10,40),S=n*(n+1)/2;return mk(`1 + 2 + … + n = ${S}. Find n.`,n,[n+1,n-1,n+2])},
+  ()=>{const n=R(5,19);return mk(`1/(1·2) + 1/(2·3) + … + 1/(${n}·${n+1}) = ?`,`${n}/${n+1}`,[`${n-1}/${n}`,`${n+1}/${n+2}`,`1/${n+1}`])},
+  ()=>pick([
+    ()=>mk('Induction for 1 + 2 + … + n = n(n+1)/2. To go from n = k to n = k+1 we add:','k + 1',['k','k − 1','2k']),
+    ()=>mk('Induction for 1² + 2² + … + n². To go from n = k to n = k+1 we add:','(k + 1)²',['k²','(k + 1)','2k + 1 only'])
+  ])()]
+]},
+{t:'Binomial Theorem',u:'Unit 1',e:'🦆',n:'Dr. Quack',g:[
+ [()=>{const n=R(4,10);return mk(`Find C(${n}, 2)`,C(n,2),[n*(n-1),n*n,C(n,3)])},
+  ()=>{const n=R(3,12);return mk(`How many terms are in the expansion of (a + b)${sup(n)}?`,n+1,[n,n+2,2*n])},
+  ()=>{const n=R(5,15);return mk(`Find C(${n}, ${n-1})`,n,[n-1,n+1,C(n,2)])}],
+ [()=>{const n=R(6,10),k=R(3,4);return mk(`Find C(${n}, ${k})`,C(n,k),[C(n,k+1),C(n,k-1),C(n+1,k)])},
+  ()=>{const n=R(3,9);return mk(`C(${n},0) + C(${n},1) + … + C(${n},${n}) = ?`,2**n,[2**n-1,2**(n+1),n*n])},
+  ()=>{const n=R(6,9),k=R(2,4);return mk(`Coefficient of x${sup(k)} in (1 + x)${sup(n)} is`,C(n,k),[C(n,k+1),C(n,k-1),n*k])}],
+ [()=>{const n=R(2,6);return mk(`Sum of all coefficients of (2x + 1)${sup(n)}?`,3**n,[2**n,3**n+1,2*n+1])},
+  ()=>{const n=R(4,7);return mk(`Coefficient of x² in (x + 2)${sup(n)} is`,C(n,2)*2**(n-2),[C(n,2)*2**n,C(n,2),C(n,2)*2**(n-1)])},
+  ()=>{const n=R(6,9),k=R(2,4);return mk(`C(${n},${k}) + C(${n},${k+1}) = ?`,C(n+1,k+1),[C(n+1,k),C(n,k+2),C(n+2,k+1)])},
+  ()=>{const n=R(4,9);return mk(`C(${n},0) + C(${n},2) + C(${n},4) + … = ?`,2**(n-1),[2**n,2**(n-1)+1,2**(n-2)])}]
+]},
+{t:'Division Algorithm',u:'Unit 2',e:'🐢',n:'Kachua Kamal',g:[
+ [()=>{const b=R(3,9),a=R(20,99);return mk(`Remainder when ${a} is divided by ${b}?`,a%b,[b-a%b,(a%b+1)%b,Math.floor(a/b)%b])},
+  ()=>{const b=R(3,9),a=R(20,99);return mk(`Quotient when ${a} is divided by ${b}?`,Math.floor(a/b),[Math.ceil(a/b)+1,a%b,Math.floor(a/b)-1])},
+  ()=>{const b=R(4,9),q=R(3,9),r=R(1,b-1);return mk(`a = ${b}·${q} + ${r}. What is a?`,b*q+r,[b*q,b*q+b,b*q+r+1])}],
+ [()=>{const b=R(3,9),a=R(10,40);return mk(`Remainder when −${a} is divided by ${b} (0 ≤ r < ${b})?`,mod(-a,b),[a%b,b-mod(-a,b),-(a%b)].filter(x=>x>=0))},
+  ()=>{const b=R(3,9),a=R(10,40);return mk(`Division algorithm: −${a} = ${b}·q + r with 0 ≤ r < ${b}. Find q.`,Math.floor(-a/b),[-Math.floor(a/b),Math.floor(-a/b)+1,Math.floor(-a/b)-1])},
+  ()=>{const m=R(3,9),N=R(50,150);return mk(`How many multiples of ${m} are there from 1 to ${N}?`,Math.floor(N/m),[Math.floor(N/m)+1,Math.floor(N/m)-1,Math.ceil(N/m)+1])}],
+ [()=>{const a=pick([2,3,4,5,6,8]),k=R(3,9),m=pick([5,7,9,11,13]);return mk(`Remainder when ${a}${sup(k)} is divided by ${m}?`,powmod(a,k,m),[(a*k)%m,(a+k)%m,powmod(a,k+1,m)])},
+  ()=>mk('The square of any integer leaves remainder ___ when divided by 4.','0 or 1',['0 or 2','1 or 2','0, 1, 2 or 3']),
+  ()=>{const k=R(5,40);return mk(`Remainder when 10${sup(k)} is divided by 9?`,1,[0,8,2])},
+  ()=>{const m=R(6,9),n=R(20,80);return mk(`Smallest r ≥ 0 so that ${n} + r is divisible by ${m}?`,mod(-n,m),[n%m,m-1,(m-n%m+1)%m])}]
+]},
+{t:'GCD & Euclid',u:'Unit 2',e:'🐐',n:'Bakra Bezout',g:[
+ [()=>{const g=R(2,9),[x,y]=coprimePair(2,6);return mk(`gcd(${g*x}, ${g*y}) = ?`,g,[g*x,g*y,g+1])},
+  ()=>{const a=pick([12,18,24,30,36]),b=pick([8,10,14,16,20,42]);return mk(`gcd(${a}, ${b}) = ?`,gcd(a,b),[lcm(a,b),a-b>0?a-b:b-a,1])},
+  ()=>{const a=R(10,40);return mk(`gcd(${a}, ${a+1}) = ?`,1,[a,a+1,2])}],
+ [()=>{const g=R(3,14),[x,y]=coprimePair(3,13);return mk(`gcd(${g*x}, ${g*y}) = ?`,g,[g*x,x*y,g+x])},
+  ()=>{const a=R(6,20),b=R(6,20);return mk(`gcd(${a},${b}) × lcm(${a},${b}) = ?`,a*b,[a+b,a*b/2,a*b+a])},
+  ()=>{const g=R(5,16),[x,y]=coprimePair(7,15);return mk(`gcd(${g*x}, ${g*y}) using Euclid's algorithm =`,g,[g*2,g+1,x])}],
+ [()=>{let a,b,r,g,x,y;do{a=R(5,30);b=R(5,30);[g,x,y]=ext(a,b)}while(a==b||Math.abs(x)>15||Math.abs(y)>15);
+    return mk(`${a}·x + ${b}·y = gcd(${a},${b}) = ${g}. If x = ${x}, then y = ?`,y,[-y,y+1,y-1])},
+  ()=>{const a=R(60,200),b=R(40,150);let s=0,p=Math.max(a,b),q=Math.min(a,b);while(q){[p,q]=[q,p%q];s++}return mk(`How many division steps does Euclid's algorithm take for gcd(${a}, ${b})?`,s,[s+1,s-1,s+2])},
+  ()=>{const g=R(6,19),[x,y]=coprimePair(11,29);return mk(`gcd(${g*x}, ${g*y}) = ?`,g,[x,y,g*2])}]
+]},
+{t:'LCM & Diophantine',u:'Unit 2',e:'🦜',n:'Tota Tez',g:[
+ [()=>{const [a,b]=shuf([2,3,4,5,6,8,9]).slice(0,2);return mk(`lcm(${a}, ${b}) = ?`,lcm(a,b),[a*b===lcm(a,b)?a*b+a:a*b,Math.max(a,b),a+b])},
+  ()=>{const [a,b]=pick([[4,6],[6,8],[6,9],[10,15],[4,10],[8,12]]);return mk(`Bus A comes every ${a} min, Bus B every ${b} min. They meet together again after how many min?`,lcm(a,b),[a*b,a+b,gcd(a,b)])},
+  ()=>{const a=R(3,9);return mk(`lcm(${a}, ${a*2}) = ?`,a*2,[a,a*3,a*4])}],
+ [()=>{const g=R(2,6),[x,y]=coprimePair(2,7);return mk(`lcm(${g*x}, ${g*y}) = ?`,g*x*y,[g*x*y*g,x*y,g*(x+y)])},
+  ()=>{const [a,b,c]=pick([[2,3,4],[3,4,6],[4,6,9],[2,5,6],[3,5,10],[6,8,12]]);return mk(`lcm(${a}, ${b}, ${c}) = ?`,lcm(lcm(a,b),c),[a*b*c,Math.max(a,b,c),lcm(a,b)+c])},
+  ()=>{const a=R(12,40),b=R(12,40);return mk(`If gcd(${a},${b}) = ${gcd(a,b)}, then lcm(${a},${b}) = ?`,a*b/gcd(a,b),[a*b,a+b,a*b/gcd(a,b)*2])}],
+ [()=>{const a=pick([3,4,5,7]),b=pick([2,3,5,6]);if(gcd(a,b)!=1)return LV[4].g[2][0]();const c=R(30,60);let n=0;for(let x=1;x*a<c;x++){const r=c-a*x;if(r>0&&r%b==0)n++}
+    return mk(`How many positive integer solutions does ${a}x + ${b}y = ${c} have?`,n,[n+1,n+2,Math.max(0,n-1)])},
+  ()=>{let a,b;do{a=R(2,9);b=R(2,9)}while(gcd(a,b)!=1||a==b);const x=R(1,8),y=R(1,8);return mk(`${a}x + ${b}y = ${a*x+b*y}. If x = ${x}, then y = ?`,y,[y+1,y-1,x])},
+  ()=>{const g=R(2,5),a=g*R(2,4),b=g*R(2,4),d=gcd(a,b);const good=d*R(4,10);const bad=[];while(bad.length<3){const v=R(20,60);if(v%d!=0&&!bad.includes(v))bad.push(v)}
+    return mk(`Which value of c makes ${a}x + ${b}y = c solvable in integers?`,good,bad)}]
+]},
+{t:'Primes & Sieve',u:'Unit 3',e:'🐙',n:'Octo-Prime',g:[
+ [()=>{const p=pick([11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]);const bad=shuf([51,57,63,87,91,77,85,95,119,121,133,143]).slice(0,3);return mk('Which of these numbers is PRIME?',p,bad)},
+  ()=>{const N=pick([10,20,30,50]);const c=primesBetween(2,N);return mk(`How many primes are there up to ${N}?`,c,[c+1,c-1,c+2])},
+  ()=>mk('Which is the only EVEN prime?',2,[4,0,1].concat([6]))],
+ [()=>{const n=R(50,200),s=Math.floor(Math.sqrt(n));let p=s;while(!isP(p))p--;return mk(`To test if ${n} is prime by trial division, which is the largest prime you must test? (primes ≤ √${n})`,p,[p+2,p-2,s+1].map(v=>Math.max(2,v)))},
+  ()=>{const n=R(20,120);let p=n+1;while(!isP(p))p++;return mk(`Next prime after ${n}?`,p,[p+1,p-1,p+2])},
+  ()=>{const a=R(10,30),b=a+R(15,25);const c=primesBetween(a,b);return mk(`How many primes lie between ${a} and ${b} (inclusive)?`,c,[c+1,c+2,Math.max(0,c-1)])}],
+ [()=>{const N=R(60,200);let p=N;while(!isP(p))p--;return mk(`Largest prime less than or equal to ${N}?`,p,[p-1,p+2,p-2].map(v=>Math.max(2,v)))},
+  ()=>mk('2·3·5·7·11·13 + 1 = 30031 (Euclid\'s idea). Its smallest prime factor is:',59,[2,13,509]),
+  ()=>{const p=pick([3,5,11,17,29,41,59,71]);const ans=`(${p}, ${p+2})`;const bad=[];while(bad.length<3){const a=R(8,60);const s=`(${a}, ${a+2})`;if(!(isP(a)&&isP(a+2))&&!bad.includes(s))bad.push(s)}return mk('Which pair is a TWIN prime pair?',ans,bad)},
+  ()=>mk('Every prime p > 3 leaves remainder ___ when divided by 6.','1 or 5',['1 or 3','2 or 4','0 or 1'])]
+]},
+{t:'FTA & Goldbach',u:'Unit 3',e:'🧞',n:'Genie Goldbach',g:[
+ [()=>{const L=[12,18,20,24,28,30,36,40,45,50,60];const n=pick(L);const wr=shuf(L.filter(x=>x!=n&&fstr(x)!==fstr(n))).slice(0,3).map(fstr);return mk(`Prime factorization of ${n} is:`,fstr(n),wr)},
+  ()=>{const L=[30,42,66,70,78,105,60,90,84,12,16,36];const n=pick(L);const d=Object.keys(fact(n)).length;return mk(`How many DISTINCT prime factors does ${n} have?`,d,[d+1,d-1,d+2].map(v=>Math.max(1,v)))},
+  ()=>{const p=pick([2,3,5,7]),q=pick([11,13,17,19]);return mk(`Smallest prime factor of ${p*q}?`,p,[q,p*q,1])}],
+ [()=>{const n=pick([12,18,20,24,28,30,36,40,45,48,50,60,72]);return mk(`How many positive divisors does ${n} have? (it is ${fstr(n)})`,tau(n),[tau(n)+1,tau(n)-1,tau(n)+2])},
+  ()=>{const L=[210,330,390,420,462,510,600,360,300,500];const n=pick(L);const d=Object.keys(fact(n)).length;return mk(`How many distinct prime factors does ${n} have?`,d,[d+1,d-1,d+2].map(v=>Math.max(1,v)))},
+  ()=>{const a=R(1,3),b=R(1,3),n=2**a*3**b*5;return mk(`n = 2${sup(a)}·3${sup(b)}·5. How many divisors does n have?`,tau(n),[tau(n)+2,a+b+1,tau(n)-1])}],
+ [()=>{const n=pick([120,180,240,360,420,504,720,840]);return mk(`Number of positive divisors of ${n} (${fstr(n)})?`,tau(n),[tau(n)+2,tau(n)-2,tau(n)+4])},
+  ()=>{const n=pick([12,18,20,24,28,30,36]);return mk(`Sum of all positive divisors of ${n}?`,sigma(n),[sigma(n)+n,sigma(n)-1,sigma(n)+2])},
+  ()=>{const E=2*R(10,30);const ps=[];for(let p=2;p<=E/2;p++)if(isP(p)&&isP(E-p))ps.push(p);const p=pick(ps);const bad=[];let t=0;while(bad.length<3&&t++<200){const a=R(3,E-3);const s=`${a} + ${E-a}`;if(!(isP(a)&&isP(E-a))&&!bad.includes(s)&&a<=E-a)bad.push(s)}
+    return mk(`Goldbach: write ${E} as a sum of TWO primes.`,`${p} + ${E-p}`,bad)},
+  ()=>{const a=pick([2,3]),b=pick([2,3]),n=2**a*3**b*5*7;return mk(`Number of divisors of 2${sup(a)}·3${sup(b)}·5·7?`,tau(n),[tau(n)+2,tau(n)/2,tau(n)+4])}]
+]}
+];
+
+/* ---------- Burton theory questions [level][stage] = [[question, correct, [wrong x3]], ...] ---------- */
+const TH=[
+ [[['Well-Ordering Principle: every nonempty set of ___ has a least element.','positive integers',['integers','rational numbers','real numbers']],
+   ['The two steps of mathematical induction are:','Base case and inductive step',['Base case and contradiction','Inductive step and example','Guess and check']]],
+  [['Archimedean property: for positive integers a, b there is a positive integer n with','na ≥ b',['na ≤ b','a + n = b','n = a/b']],
+   ['Principle of Induction: S ⊆ ℕ, 1 ∈ S, and k ∈ S ⇒ k + 1 ∈ S. Then','S = ℕ',['S is finite','S = {1}','S is empty']]],
+  [['The second (strong) principle of induction assumes in the inductive step that','P(1), P(2), …, P(k) are all true',['only P(k) is true','only P(1) is true','P(k + 1) is true']],
+   ['The inequality 2ⁿ > n holds for','all positive integers n',['only even n','only n > 5','no positive n']]]],
+ [[['The binomial coefficient C(n, k) is defined as','n! / (k!(n − k)!)',['n! / k!','n! / (n + k)!','k! / n!']],
+   ['C(n, k) = C(n, ?)','n − k',['k − n','n + k','k']]],
+  [['Binomial theorem: (a + b)ⁿ = Σ C(n, k) ·','aⁿ⁻ᵏ bᵏ',['aᵏ bᵏ','aⁿ bᵏ','aᵏ bⁿ⁺ᵏ']],
+   ['Pascal\'s rule: C(n, k) + C(n, k − 1) =','C(n + 1, k)',['C(n, k + 1)','C(n − 1, k)','C(n + 1, k − 1)']]],
+  [['The sum C(n,0) + C(n,1) + … + C(n,n) equals','2ⁿ',['n²','2n','n!']],
+   ['For n ≥ 1, Σ (−1)ᵏ C(n, k) for k = 0 to n equals','0',['1','2ⁿ','−1']]]],
+ [[['Division Algorithm: for integers a, b with b > 0 there are unique q, r with a = qb + r and','0 ≤ r < b',['0 < r ≤ b','r > b','0 ≤ r ≤ b']],
+   ['a | b (a divides b) means','b = ac for some integer c',['a = bc for some integer c','a + b is even','a < b']]],
+  [['If a | b and b | c, then','a | c',['c | a','a = c','b | a']],
+   ['If a | b and a | c, then a | (bx + cy) for','all integers x, y',['positive x, y only','x = y only','no x, y']]],
+  [['The product of any k consecutive integers is divisible by','k!',['k','k²','k + 1']],
+   ['For every integer n, the number n³ − n is divisible by','6',['4','5','8']]]],
+ [[['gcd(a, b) is the','largest positive integer dividing both a and b',['smallest positive integer dividing both','product of a and b','sum of a and b']],
+   ['a and b are relatively prime if','gcd(a, b) = 1',['gcd(a, b) = 0','a = b','a | b']]],
+  [['The Euclidean algorithm repeatedly uses','a = qb + r, then replaces (a, b) by (b, r)',['a − b until zero','a × b until prime','b = qa + r only once']],
+   ['gcd(a, b) can always be written as','ax + by for some integers x, y',['ax − by for positive x, y only','a + b','ab']]],
+  [['Euclid\'s lemma: if a | bc and gcd(a, b) = 1, then','a | c',['a | b','a = c','a | (b + c)']],
+   ['gcd(a, b) = 1 if and only if there exist integers x, y with','ax + by = 1',['ax + by = 0','ax = by','ax + by = ab']]]],
+ [[['lcm(a, b) is the','smallest positive common multiple',['largest common divisor','always a·b','sum a + b']],
+   ['For positive integers a, b: gcd(a, b) · lcm(a, b) =','ab',['a + b','a / b','a²b²']]],
+  [['The linear Diophantine equation ax + by = c has a solution if and only if','gcd(a, b) | c',['a | c','gcd(a, b) = c','c | gcd(a, b)']],
+   ['A Diophantine equation asks for','integer solutions',['real solutions','complex solutions','only prime solutions']]],
+  [['If (x₀, y₀) solves ax + by = c and d = gcd(a, b), then x = x₀ + (b/d)t and y =','y₀ − (a/d)t',['y₀ + (a/d)t','y₀ − (b/d)t','y₀ + (b/d)t']],
+   ['If gcd(a, b) = 1, the equation ax + by = c has how many integer solutions?','infinitely many',['exactly one','exactly two','none']]]],
+ [[['A prime is an integer p > 1 whose only positive divisors are','1 and p',['1 only','p and 2','2 and p']],
+   ['Euclid\'s theorem: the number of primes is','infinite',['finite','exactly 100','unknown']]],
+  [['Sieve of Eratosthenes: to find all primes up to n, cross out multiples of primes up to','√n',['n / 2','n','n²']],
+   ['Euclid\'s lemma for primes: if p | ab, then','p | a or p | b',['p | a and p | b','p | (a + b)','p = ab']]],
+  [['If n > 1 is composite, then n has a prime divisor p with','p ≤ √n',['p > √n','p = n','p ≥ n / 2']],
+   ['The twin prime conjecture says there are infinitely many primes p such that','p + 2 is also prime',['p + 1 is also prime','2p is also prime','p − 2 is composite']]]],
+ [[['Fundamental Theorem of Arithmetic: every integer n > 1 is a product of','primes (uniquely, apart from order)',['squares','even numbers only','exactly two primes']],
+   ['Goldbach\'s conjecture: every even integer greater than 2 is the sum of','two primes',['two odd numbers','three primes always','two squares']]],
+  [['If n = p₁^k₁ ··· pᵣ^kᵣ, the number of positive divisors of n is','(k₁ + 1)(k₂ + 1) ··· (kᵣ + 1)',['k₁ + k₂ + … + kᵣ','k₁k₂ ··· kᵣ','2ʳ always']],
+   ['Goldbach\'s conjecture is','still unproved (open)',['proved by Euclid','proved by Gauss','proved by Fermat']]],
+  [['For a prime p, the sum of divisors of pᵏ is','(pᵏ⁺¹ − 1) / (p − 1)',['pᵏ − 1','k · p','pᵏ⁺¹']],
+   ['n is a perfect square if and only if','every exponent in its prime factorization is even',['n is even','all exponents equal 1','n has an even number of distinct primes']]]]
+];
+LV.forEach((L,l)=>L.g.forEach((arr,s)=>arr.push(()=>{const t=pick(TH[l][s]);const q=mk('📖 Theory: '+t[0],t[1],t[2]);return q})));
+const SEC=['Unit 1 · §1.1 Induction','Unit 1 · §1.2 Binomial Theorem','Unit 2 · §2.1 Division Algorithm','Unit 2 · §2.2–2.3 GCD & Euclid','Unit 2 · §2.4 LCM & Diophantine','Unit 3 · §3.2 Primes & Sieve','Unit 3 · §3.1–3.2 FTA & Goldbach'];
+LV.forEach((L,i)=>L.u=SEC[i]);
+
+const STG=[{n:'Easy',e:'🌱'},{n:'Medium',e:'🔥'},{n:'Hard',e:'💀'}];
+const GOOD=['Waah {n} khush ho gaya! 🎉','Kamaal! Aap to genius hain! 🧠','Bilkul sahi! 🔥','Shabash! Upar chalo! 🚀','Ye hui na baat! 😎'];
+const BAD=['Oye hoye! Phisal gaye 😅','Koi baat nahi, agla pakka! 💪','Arre! Thora aur sochna tha 🤔','Hahaha! Sahi jawab neeche hai 😜','{n} ko hansi aa gayi 🤭'];
+
+/* ---------- state ---------- */
+let cur={lv:0,st:0,qs:[],i:0,score:0,fifty:2,lock:false,step:0},timer=null;
+let best={};try{best=JSON.parse(localStorage.getItem('magicsteps_v1')||'{}')}catch(e){}
+let openAll=false;try{openAll=localStorage.getItem('magicsteps_open')==='1'}catch(e){}
+const saveBest=()=>{try{localStorage.setItem('magicsteps_v1',JSON.stringify(best))}catch(e){}};
+const bs=(l,s)=>best[l+'_'+s]||0;
+const unlocked=(l,s)=>{if(openAll||(l==0&&s==0))return true;return s>0?bs(l,s-1)>=3:bs(l-1,2)>=3};
+const $=id=>document.getElementById(id);
+
+/* ---------- screens ---------- */
+function go(id){
+  try{speechSynthesis.cancel()}catch(e){}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');window.scrollTo(0,0);
+  if(id==='levels')drawLevels();
+  startMusic();
+}
+function drawLevels(){
+  $('lgrid').innerHTML=LV.map((L,i)=>{
+    const open=unlocked(i,0);
+    const stars=[0,1,2].reduce((a,s)=>a+(bs(i,s)>=5?3:bs(i,s)==4?2:bs(i,s)==3?1:0),0);
+    return `<div class="lcard ${open?'':'lock'}" onclick="${open?`openLevel(${i})`:''}">
+      <span class="num">Level ${i+1}</span><div class="em">${open?L.e:'🔒'}</div><h3>${L.t}</h3><small>${L.u} &middot; with ${L.n}</small>
+      <div class="stars">★ ${stars}/9</div></div>`}).join('');
+}
+function openLevel(i){
+  cur.lv=i;const L=LV[i];
+  $('stTitle').textContent=`Level ${i+1}: ${L.t}`;$('stEmoji').textContent=L.e;
+  $('stgrid').innerHTML=STG.map((s,k)=>{
+    const open=unlocked(i,k),b=bs(i,k);
+    return `<div class="lcard ${open?'':'lock'}" onclick="${open?`startStage(${i},${k})`:''}">
+      <div class="em">${open?s.e:'🔒'}</div><h3>${s.n}</h3><small>5 steps</small>
+      <div class="stars">${b>=5?'★★★':b==4?'★★☆':b==3?'★☆☆':'☆☆☆'}</div></div>`}).join('');
+  go('stages');
+}
+function unlockAll(){openAll=true;try{localStorage.setItem('magicsteps_open','1')}catch(e){}drawLevels()}
+
+/* ---------- game ---------- */
+function buildQs(l,s){
+  const gens=LV[l].g[s],out=[],seen=new Set();let t=0;
+  const order=shuf(gens);
+  while(out.length<5&&t++<80){
+    const g=out.length<order.length?order[out.length]:pick(gens);
+    const q=g();if(q&&!seen.has(q.q)){seen.add(q.q);out.push(q)}
+  }
+  return out;
+}
+function startStage(l,s){
+  clearTimeout(timer);
+  cur={lv:l,st:s,qs:buildQs(l,s),i:0,score:0,fifty:2,lock:false,step:0};
+  const L=LV[l];
+  $('gTitle').textContent=`${L.e} L${l+1} ${STG[s].e} ${STG[s].n}`;
+  $('hostEm').textContent=L.e;
+  say(`${L.n} kehta hai: Chalo shuru karte hain! 🪜`);
+  drawStairs();go('game');showQ();
+}
+function drawStairs(){
+  const st=$('stairs');st.querySelectorAll('.step,.player,.trophy').forEach(e=>e.remove());
+  for(let i=1;i<=5;i++){
+    const d=document.createElement('div');d.className='step';d.id='s'+i;d.style.left=(i*15)+'%';d.style.height=(i*44)+'px';d.textContent=i;st.appendChild(d);
+  }
+  const t=document.createElement('div');t.className='trophy';t.textContent='🏆';t.style.left='86%';t.style.bottom=(5*44+4)+'px';st.appendChild(t);
+  const p=document.createElement('div');p.className='player';p.id='player';p.innerHTML='<span>🧑‍🎓</span>';st.appendChild(p);
+  movePlayer(0);
+}
+function movePlayer(n){const p=$('player');p.style.left=(n*15)+'%';p.style.bottom=(n*44)+'px'}
+function say(t){$('bubble').textContent=t.replace('{n}',LV[cur.lv].n)}
+function showQ(){
+  cur.lock=false;const q=cur.qs[cur.i];
+  $('hStep').textContent=`Step ${cur.i+1} / 5`;$('hScore').textContent=`✓ ${cur.score} correct`;$('progI').style.width=(cur.i/5*100)+'%';
+  $('qtxt').innerHTML=`<div>${q.q}<small>👆 tap to hear</small></div>`;
+  $('opts').innerHTML=q.o.map((o,k)=>`<button class="opt" data-v="${o.replace(/"/g,'&quot;')}" onclick="answer(this)">${'ABCD'[k]}. ${o}</button>`).join('');
+  $('lifeBtn').textContent=`✂ 50:50 (${cur.fifty})`;
+  setTimeout(readQ,350);
+}
+function answer(btn){
+  if(cur.lock)return;cur.lock=true;
+  try{speechSynthesis.cancel()}catch(e){}
+  const q=cur.qs[cur.i],ok=btn.dataset.v===q.a;
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(b.dataset.v===q.a)b.classList.add('ok')});
+  const pl=$('player');
+  if(ok){
+    cur.score++;cur.step++;sfx(true);
+    $('s'+cur.step).classList.add('done');
+    movePlayer(cur.step);pl.classList.remove('slip');pl.classList.add('jump');
+    say(pick(GOOD));showPop();
+    timer=setTimeout(()=>{pl.classList.remove('jump');next()},1700);
+  }else{
+    btn.classList.add('no');sfx(false);
+    pl.classList.remove('jump');pl.classList.add('slip');
+    say(pick(BAD)+' → '+q.a);
+    timer=setTimeout(()=>{pl.classList.remove('slip');next()},2400);
+  }
+}
+function next(){
+  hidePop();cur.i++;
+  if(cur.i>=5)finish();else showQ();
+}
+function fifty(){
+  if(cur.lock||cur.fifty<=0)return;
+  const q=cur.qs[cur.i];
+  const wrong=[...document.querySelectorAll('.opt')].filter(b=>b.dataset.v!==q.a&&!b.classList.contains('hide'));
+  if(wrong.length<=1)return;
+  shuf(wrong).slice(0,2).forEach(b=>{b.classList.add('hide');b.disabled=true});
+  cur.fifty--;$('lifeBtn').textContent=`✂ 50:50 (${cur.fifty})`;
+  say('50:50! Do galat options ud gaye 🪄');
+}
+function backFromGame(){clearTimeout(timer);$('ask').hidden=false;cur.lock=true}
+function askNo(){$('ask').hidden=true;if(cur.i<5&&!document.querySelector('.opt:disabled:not(.hide)'))cur.lock=false;else{timer=setTimeout(next,600)}}
+function askYes(){$('ask').hidden=true;clearTimeout(timer);hidePop();speechSynthesis&&speechSynthesis.cancel();openLevel(cur.lv)}
+function finish(){
+  const s=cur.score,k=cur.lv+'_'+cur.st;
+  if(s>(best[k]||0)){best[k]=s;saveBest()}
+  const pass=s>=3;
+  $('rEmoji').textContent=pass?'🏆':'😅';
+  $('rTitle').textContent=`${s} / 5 ${pass?'— Stage Clear!':'— Try Again!'}`;
+  $('rStars').textContent=s>=5?'★★★':s==4?'★★☆':s==3?'★☆☆':'☆☆☆';
+  $('rMsg').textContent=pass?`${LV[cur.lv].n}: Kya baat hai! Aap upar tak pohanch gaye! 🎊`:`${LV[cur.lv].n}: Himmat na harein, dobara try karein! 💪`;
+  const has=pass&&!(cur.lv==6&&cur.st==2);
+  $('rNext').style.display=has?'':'none';
+  if(pass){burst(40);sfx(true)}
+  go('result');
+}
+function nextStage(){
+  let l=cur.lv,s=cur.st+1;if(s>2){s=0;l++}
+  if(l>6){go('levels');return}
+  startStage(l,s);
+}
+
+/* ---------- speech ---------- */
+function speakText(t){
+  return t.replace(/📖/g,'').replace(/\|/g,' divides ').replace(/ℕ/g,'the natural numbers').replace(/Σ/g,' sum of ').replace(/≡/g,' congruent to ').replace(/×/g,' times ').replace(/·/g,' times ').replace(/−/g,' minus ').replace(/\+/g,' plus ')
+   .replace(/…/g,' and so on ').replace(/²/g,' squared ').replace(/³/g,' cubed ').replace(/≤/g,' less than or equal to ')
+   .replace(/≥/g,' greater than or equal to ').replace(/√/g,' square root of ').replace(/\//g,' over ')
+   .replace(/[⁰¹⁴⁵⁶⁷⁸⁹]/g,c=>' to the power '+'⁰¹²³⁴⁵⁶⁷⁸⁹'.indexOf(c)+' ').replace(/=/g,' equals ');
+}
+function readQ(){
+  if(!('speechSynthesis' in window)||!cur.qs[cur.i])return;
+  speechSynthesis.cancel();
+  const q=cur.qs[cur.i];
+  const txt=q.q+'. '+q.o.map((o,k)=>'Option '+'ABCD'[k]+', '+o).join('. ');
+  const u=new SpeechSynthesisUtterance(speakText(txt));u.lang='en-US';u.rate=.92;u.pitch=1.1;
+  speechSynthesis.speak(u);
+}
+
+/* ---------- pop / confetti ---------- */
+function showPop(){
+  $('popin').textContent=pick(['Good Job! 🎉','Awesome! 🌟','Brilliant! 🧠','Super! 🚀']);
+  $('pop').classList.add('on');burst(26);
+}
+function hidePop(){$('pop').classList.remove('on')}
+function burst(n){
+  const em=['✦','★','◆','✧','∑','π','∞','✺'],co=['#f6c96b','#ffe7a6','#8b5cf6','#4fd1ff','#ff6fae','#34d399'];
+  for(let i=0;i<n;i++){
+    const s=document.createElement('span');s.className='conf';s.textContent=pick(em);s.style.color=pick(co);
+    s.style.setProperty('--x',R(-380,380)+'px');s.style.setProperty('--y',R(-380,300)+'px');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1300);
+  }
+}
+
+/* ---------- audio ---------- */
+let ac,musicOn=true,mt=null,beat=0;
+const PENT=[261.6,293.7,329.6,392,440,523.3,587.3,659.3,784];
+const MEL=[0,2,4,2,5,4,2,1, 0,2,4,5,7,5,4,2, 3,4,5,4,2,1,0,1, 2,4,5,7,5,4,2,0];
+const BASS=[130.8,130.8,174.6,174.6,196,196,164.8,164.8];
+function tone(f,t,d,type,v){
+  const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.05);
+}
+function kick(t){
+  const o=ac.createOscillator(),g=ac.createGain();o.type='sine';
+  o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.15);
+  g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+.25);
+}
+let nb=null;
+function hat(t,v){
+  if(!nb){nb=ac.createBuffer(1,ac.sampleRate*.08,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+  const s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();
+  s.buffer=nb;f.type='highpass';f.frequency.value=7000;
+  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.07);
+  s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);
+}
+function startMusic(){
+  try{
+    if(!musicOn)return;
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    if(mt)return;
+    mt=setInterval(()=>{
+      const t=ac.currentTime+.05,i=beat%MEL.length;
+      tone(PENT[MEL[i]],t,.3,'triangle',.08);
+      if(i%4==0)tone(BASS[Math.floor(i/4)%BASS.length],t,.5,'sine',.12);
+      if(i%2==1)tone(PENT[(MEL[i]+4)%9]*2,t,.12,'square',.012);
+      if(i%8==0){const b=BASS[Math.floor(i/4)%BASS.length];[1,1.25,1.5].forEach(m=>tone(b*2*m,t,1.6,'sine',.03))}
+      if(i%8==0)kick(t);
+      if(i%2==0)hat(t,i%4==2?.05:.03);
+      if(i%8==4)hat(t,.09);
+      beat++;
+    },230);
+  }catch(e){}
+}
+function toggleMusic(){
+  musicOn=!musicOn;
+  if(!musicOn){clearInterval(mt);mt=null}else startMusic();
+  const t=musicOn?'🎵 Music: ON':'🔇 Music: OFF';
+  $('musicBtn1').textContent=t;$('musicBtn2').textContent=musicOn?'🎵':'🔇';
+}
+function sfx(ok){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state==='suspended')ac.resume();
+    const t=ac.currentTime;
+    if(ok){[523,659,784,1047].forEach((f,i)=>tone(f,t+i*.09,.25,'sine',.18))}
+    else{tone(220,t,.25,'sawtooth',.12);tone(165,t+.18,.35,'sawtooth',.12)}
+  }catch(e){}
+}
+['pointerup','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{if(musicOn)startMusic();else{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}}},{passive:true}));
+
+/* ---------- decoration ---------- */
+(function(){
+  const sy=['∑','π','∞','÷','×','+','−','=','≡','√','gcd','lcm','p','7','13','2','C(n,k)','n!','|','∫'];
+  const f=$('float');
+  for(let i=0;i<28;i++){
+    const s=document.createElement('span');s.textContent=pick(sy);
+    s.style.left=R(0,98)+'%';s.style.fontSize=R(18,56)+'px';
+    s.style.animationDuration=R(14,34)+'s';s.style.animationDelay=(-R(0,30))+'s';f.appendChild(s);
+  }
+  $('homechars').innerHTML=LV.map((l,i)=>`<div style="animation-delay:${.15+i*.14}s;--k:${i+1}" title="${l.n}">${l.e}</div>`).join('');
+})();
+</script>
+</body></html>
